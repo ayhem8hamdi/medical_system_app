@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp">
+
+    <!-- Top section: Avatar + Username + Email -->
+    <RelativeLayout
+        android:id="@+id/topSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Avatar Image -->
+        <ImageView
+            android:id="@+id/avatarImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/user_image"
+            android:contentDescription="@string/app_name"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="16dp"
+            android:scaleType="centerInside" />
+
+        <!-- Username Text -->
+        <TextView
+            android:id="@+id/usernameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/avatarImage"
+            android:layout_alignTop="@id/avatarImage" />
+
+        <!-- Email Text -->
+        <TextView
+            android:id="@+id/emailText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="user@example.com"
+            android:textSize="16sp"
+            android:layout_below="@id/usernameText"
+            android:layout_toEndOf="@id/avatarImage"
+            android:layout_marginTop="4dp" />
+
+    </RelativeLayout>
+
+    <!-- Welcome message below top section -->
+    <TextView
+        android:id="@+id/welcomeMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome to the Medical System!"
+        android:textSize="18sp"
+        android:layout_below="@id/topSection"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Example button at the bottom -->
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@color/colorOnPrimary"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"/>
+</RelativeLayout>
