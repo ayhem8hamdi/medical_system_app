@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="200dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="9dp"
+    android:background="@drawable/border_secondary"
+    android:layout_marginEnd="12dp">
+
+    <!-- Doctor Image -->
+    <ImageView
+        android:id="@+id/doctorImage"
+        android:layout_width="175dp"
+        android:layout_height="196dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/doctor_girl" />
+
+    <!-- Vertical spacing -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <!-- Name + Rating Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/doctorName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Dr. Emily Carter"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:textFontWeight="500" />
+
+        <!-- Star icon -->
+        <ImageView
+            android:id="@+id/starIcon"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:src="@drawable/star" />
+
+        <!-- Rating number -->
+        <TextView
+            android:id="@+id/ratingNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4.8"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="4dp" />
+
+        <!-- Number of reviews -->
+        <TextView
+            android:id="@+id/reviewCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(230)"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- Vertical spacing -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="4dp" />
+
+    <!-- Specialty -->
+    <TextView
+        android:id="@+id/doctorSpecialty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cardiologist"
+        android:textSize="12sp"
+        android:textColor="@color/black" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="4dp" />
+
+    <!-- Price -->
+    <TextView
+        android:id="@+id/doctorPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$25 - session"
+        android:textSize="12sp"
+        android:textColor="@color/black" />
+
+    <!-- Space before button -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="15dp" />
+
+    <!-- Book Now Button -->
+    <Button
+        android:id="@+id/bookButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Book Now"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@color/colorOnPrimary"
+        android:textSize="14sp"/>
+</LinearLayout>
+

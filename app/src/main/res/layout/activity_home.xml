@@ -1,73 +1,324 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:padding="16dp">
+    android:background="@color/white">
 
-    <!-- Top section: Avatar + Username + Email -->
-    <RelativeLayout
-        android:id="@+id/topSection"
+    <!-- Scrollable Content - MUST be above bottom navigation -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:layout_above="@+id/bottomNavigationView"
+        android:background="@color/white">
 
-        <!-- Avatar Image -->
-        <ImageView
-            android:id="@+id/avatarImage"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/user_image"
-            android:contentDescription="@string/app_name"
-            android:layout_alignParentStart="true"
-            android:layout_marginEnd="16dp"
-            android:scaleType="centerInside" />
-
-        <!-- Username Text -->
-        <TextView
-            android:id="@+id/usernameText"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Username"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_toEndOf="@id/avatarImage"
-            android:layout_alignTop="@id/avatarImage" />
+            android:background="@color/white"
+            android:padding="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp">
 
-        <!-- Email Text -->
-        <TextView
-            android:id="@+id/emailText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="user@example.com"
-            android:textSize="16sp"
-            android:layout_below="@id/usernameText"
-            android:layout_toEndOf="@id/avatarImage"
-            android:layout_marginTop="4dp" />
+            <!-- Top section: Avatar + Username + Email -->
+            <RelativeLayout
+                android:id="@+id/topSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    </RelativeLayout>
+                <!-- Avatar Image -->
+                <ImageView
+                    android:id="@+id/avatarImage"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/user_image"
+                    android:contentDescription="@string/app_name"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerInside" />
 
-    <!-- Welcome message below top section -->
-    <TextView
-        android:id="@+id/welcomeMessage"
-        android:layout_width="wrap_content"
+                <!-- Username Text -->
+                <TextView
+                    android:id="@+id/usernameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ayhem Hamdi"
+                    android:textColor="@color/black"
+                    android:textSize="13sp"
+                    android:layout_toEndOf="@id/avatarImage"
+                    android:layout_alignTop="@id/avatarImage" />
+
+                <!-- Email Text -->
+                <TextView
+                    android:id="@+id/emailText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ayhemhamdi24@gmail.com"
+                    android:textColor="@color/black"
+                    android:textSize="13sp"
+                    android:layout_below="@id/usernameText"
+                    android:layout_toEndOf="@id/avatarImage"
+                    android:layout_marginTop="4dp" />
+            </RelativeLayout>
+
+            <!-- New greetings under top section -->
+            <TextView
+                android:id="@+id/helloAyhem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello, Ayhem!"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_below="@id/topSection"
+                android:layout_marginTop="16dp"
+                android:layout_alignParentStart="true"/>
+
+            <TextView
+                android:id="@+id/dashboardMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/helloAyhem"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="4dp"
+                android:text="Your health dashboard is here."
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
+            <!-- Search Bar -->
+            <RelativeLayout
+                android:id="@+id/searchBarContainer"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@id/dashboardMessage"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/search_bar_bg"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:gravity="center_vertical"
+                android:layout_centerHorizontal="true">
+
+                <!-- Search Icon -->
+                <ImageView
+                    android:id="@+id/searchIcon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginTop="2dp"
+                    android:src="@drawable/search_icon" />
+
+                <!-- Search Input -->
+                <EditText
+                    android:id="@+id/searchInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/searchIcon"
+                    android:layout_marginStart="12dp"
+                    android:background="@android:color/transparent"
+                    android:hint="Search"
+                    android:textColorHint="@color/colorPrimary"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:padding="0dp" />
+            </RelativeLayout>
+
+            <!-- Main Features Text -->
+            <TextView
+                android:id="@+id/mainFeaturesTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Main Features"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textFontWeight="500"
+                android:layout_marginStart="4dp"
+                android:layout_below="@id/searchBarContainer"
+                android:layout_marginTop="24dp"
+                android:layout_alignParentStart="true"/>
+
+            <!-- Main Features items -->
+            <LinearLayout
+                android:id="@+id/featuresRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@id/mainFeaturesTitle"
+                android:layout_marginTop="19dp"
+                android:gravity="center"
+                android:weightSum="4">
+
+                <!-- Feature 1 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/feature1Image"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/book_doctor" />
+
+                    <TextView
+                        android:id="@+id/feature1Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Book Doctor"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- Feature 2 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/feature2Image"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/medecine" />
+
+                    <TextView
+                        android:id="@+id/feature2Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Medicine"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- Feature 3 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/feature3Image"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/lab_tests" />
+
+                    <TextView
+                        android:id="@+id/feature3Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lab Tests"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!-- Feature 4 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/feature4Image"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/health_tips" />
+
+                    <TextView
+                        android:id="@+id/feature4Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Health Tips"
+                        android:textSize="14sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- best doctors text row -->
+            <LinearLayout
+                android:id="@+id/topRatedRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/featuresRow"
+                android:layout_marginTop="29dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Left Text -->
+                <TextView
+                    android:id="@+id/topRatedTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Top Rated Cardiologists"
+                    android:textSize="17sp"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500" />
+
+                <!-- Right Text -->
+                <TextView
+                    android:id="@+id/seeAllText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See all"
+                    android:textSize="14sp"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="normal" />
+
+            </LinearLayout>
+
+            <!-- Horizontal scroll row of doctor cards -->
+            <HorizontalScrollView
+                android:id="@+id/doctorsScrollView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/topRatedRow"
+                android:layout_marginTop="20dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Include 4 doctor cards -->
+                    <include layout="@layout/doctor_card"/>
+                    <include layout="@layout/doctor_card"/>
+                    <include layout="@layout/doctor_card"/>
+                    <include layout="@layout/doctor_card"/>
+                </LinearLayout>
+            </HorizontalScrollView>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to the Medical System!"
-        android:textSize="18sp"
-        android:layout_below="@id/topSection"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"/>
-
-    <!-- Example button at the bottom -->
-    <Button
-        android:id="@+id/logoutButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        android:backgroundTint="@color/colorPrimary"
-        android:textColor="@color/colorOnPrimary"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:padding="12dp"
-        android:layout_marginBottom="24dp"/>
+        android:background="@color/white"
+        app:menu="@menu/bottom_nav_menu"
+        app:labelVisibilityMode="labeled"
+        app:itemIconTint="@color/bottom_nav_color"
+        app:itemTextColor="@color/bottom_nav_color" />
+
 </RelativeLayout>

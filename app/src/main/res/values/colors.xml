@@ -5,7 +5,10 @@
     <color name="colorPrimary">#2260FF</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="textEditColor">#ECF1FF</color>
+    <color name="secondaryColor">#CAD6FF</color>
+    <color name="borderColor">#D2D2D2</color>
+    <color name="inactiveIconColor">#BBBBBB</color>
 
-   
+
 
 </resources>
