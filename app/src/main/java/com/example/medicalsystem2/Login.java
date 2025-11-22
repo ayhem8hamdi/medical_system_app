@@ -3,34 +3,40 @@ package com.example.medicalsystem2;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Login extends AppCompatActivity {
 
-    private TextView signUpText;
-    private Button loginButton;
+    private EditText emailEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Find the TextView and Button
-        signUpText = findViewById(R.id.signUpText);
-        loginButton = findViewById(R.id.loginButton);
+        TextView signUpText = findViewById(R.id.signUpText);
+        Button loginButton = findViewById(R.id.loginButton);
+        emailEditText = findViewById(R.id.emailEditText);
 
-        // Set click listener for Sign Up text to navigate to SignUp activity
+        // Click "Sign Up" → go to SignUp screen
         signUpText.setOnClickListener(v -> {
             Intent intent = new Intent(Login.this, SignUp.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
 
-        // Set click listener for Login button to navigate to Home activity
+        // Click login button → go to Home screen and send email
         loginButton.setOnClickListener(v -> {
+            String email = emailEditText.getText().toString().trim();
+
             Intent intent = new Intent(Login.this, Home.class);
+            intent.putExtra("user_email", email); // send email inside bundle
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Optional: close the login activity so user can't go back with back button
+            finish();
         });
     }
 }

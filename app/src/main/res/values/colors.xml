@@ -8,6 +8,7 @@
     <color name="secondaryColor">#CAD6FF</color>
     <color name="borderColor">#D2D2D2</color>
     <color name="inactiveIconColor">#BBBBBB</color>
+    <color name="textColor">#333333</color>
 
 
 
