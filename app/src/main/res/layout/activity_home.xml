@@ -2,7 +2,6 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -23,7 +22,6 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp">
 
-            <!-- Top section: Avatar + Email Only -->
             <!-- Top section: Avatar + Email + Logo -->
             <RelativeLayout
                 android:id="@+id/topSection"
@@ -40,7 +38,6 @@
                     android:layout_alignParentStart="true"
                     android:layout_marginEnd="16dp"
                     app:shapeAppearanceOverlay="@style/RoundedImage" />
-
 
                 <!-- Email Text (vertically centered) -->
                 <TextView
@@ -65,7 +62,6 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="4dp" />
             </RelativeLayout>
-
 
             <!-- New greetings under top section -->
             <TextView
@@ -293,14 +289,26 @@
                 android:scrollbars="none">
 
                 <LinearLayout
+                    android:id="@+id/doctorsContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <include layout="@layout/doctor_card"/>
-                    <include layout="@layout/doctor_card"/>
-                    <include layout="@layout/doctor_card"/>
-                    <include layout="@layout/doctor_card"/>
+                    <include
+                        android:id="@+id/doctorCard1"
+                        layout="@layout/doctor_card"/>
+
+                    <include
+                        android:id="@+id/doctorCard2"
+                        layout="@layout/doctor_card"/>
+
+                    <include
+                        android:id="@+id/doctorCard3"
+                        layout="@layout/doctor_card"/>
+
+                    <include
+                        android:id="@+id/doctorCard4"
+                        layout="@layout/doctor_card"/>
                 </LinearLayout>
             </HorizontalScrollView>
 

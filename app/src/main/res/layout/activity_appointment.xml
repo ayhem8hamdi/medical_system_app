@@ -368,16 +368,6 @@
             android:textColor="@color/textColor"
             android:textSize="12sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/dateRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:layout_marginTop="12dp"
-            android:clipToPadding="false"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:scrollbars="none" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/openFullCalendarButton"
             android:layout_width="match_parent"
@@ -385,7 +375,6 @@
             android:layout_marginTop="12dp"
             android:backgroundTint="@color/white"
             android:strokeColor="@color/colorPrimary"
-            android:strokeWidth="1dp"
             android:text="Pick from full calendar"
             android:textColor="@color/black"
             app:cornerRadius="12dp"
@@ -393,5 +382,62 @@
             app:iconGravity="textStart"
             app:iconPadding="12dp" />
     </LinearLayout>
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scheduleSection">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/selectedDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Selected Date: "
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/availableTimeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Available Time Slots"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/timeSlotsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/confirmAppointmentButton"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="Confirm Appointment"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
