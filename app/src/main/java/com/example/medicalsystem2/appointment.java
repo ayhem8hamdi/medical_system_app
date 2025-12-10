@@ -1,7 +1,10 @@
 package com.example.medicalsystem2;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,12 +98,16 @@ public class appointment extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
                     String date = sdf.format(selectedCalendar.getTime());
 
-                    Toast.makeText(this,
-                            "Appointment confirmed for " + date + " at " + selectedTimeSlot,
-                            Toast.LENGTH_LONG).show();
+                    // Save appointment to SharedPreferences
+                    saveAppointmentToPreferences();
 
-                    // Here you would typically save the appointment to your database
-                    // and navigate to confirmation screen
+                    // Start the reminder service
+                    startReminderService();
+
+                    Toast.makeText(this,
+                            "Appointment confirmed for " + date + " at " + selectedTimeSlot + "\n" +
+                                    "You'll receive a reminder 30 minutes before!",
+                            Toast.LENGTH_LONG).show();
 
                     // For now, just show success and reset
                     resetSelection();
@@ -264,6 +271,29 @@ public class appointment extends AppCompatActivity {
             timeSlotsAdapter.setSelectedTimeSlot("");
             timeSlotsAdapter.notifyDataSetChanged();
         }
+    }
+
+    // NEW METHOD: Save appointment to SharedPreferences
+    private void saveAppointmentToPreferences() {
+        // Combine date and time into one string
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String dateStr = sdf.format(selectedCalendar.getTime());
+        String dateTimeStr = dateStr + " " + selectedTimeSlot;
+
+        // Save to SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("appointment_datetime", dateTimeStr);
+        editor.apply();
+
+        Log.d("AppointmentActivity", "Saved appointment: " + dateTimeStr);
+    }
+
+    // NEW METHOD: Start the reminder service
+    private void startReminderService() {
+        Intent serviceIntent = new Intent(this, AppointmentReminderService.class);
+        startService(serviceIntent);
+        Log.d("AppointmentActivity", "Reminder service started!");
     }
 
     @Override
