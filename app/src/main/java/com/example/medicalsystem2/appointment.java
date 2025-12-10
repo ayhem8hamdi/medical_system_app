@@ -1,6 +1,7 @@
 package com.example.medicalsystem2;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -32,11 +33,13 @@ public class appointment extends AppCompatActivity {
     private RecyclerView timeSlotsRecyclerView;
     private MaterialButton confirmAppointmentButton;
     private MaterialButton openFullCalendarButton;
+    private MaterialButton customTimeButton;
 
     private TimeSlotsAdapter timeSlotsAdapter;
     private List<String> availableTimeSlots = new ArrayList<>();
     private Calendar selectedCalendar;
     private String selectedTimeSlot = "";
+    private boolean isCustomTime = false; // Track if user selected custom time
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,7 @@ public class appointment extends AppCompatActivity {
         timeSlotsRecyclerView = findViewById(R.id.timeSlotsRecyclerView);
         confirmAppointmentButton = findViewById(R.id.confirmAppointmentButton);
         openFullCalendarButton = findViewById(R.id.openFullCalendarButton);
+        customTimeButton = findViewById(R.id.customTimeButton);
 
         // Make sure confirm button starts disabled and hidden
         if (confirmAppointmentButton != null) {
@@ -92,6 +96,11 @@ public class appointment extends AppCompatActivity {
             openFullCalendarButton.setOnClickListener(v -> showDatePickerDialog());
         }
 
+        // NEW: Custom time button click listener
+        if (customTimeButton != null) {
+            customTimeButton.setOnClickListener(v -> showCustomDateTimePicker());
+        }
+
         if (confirmAppointmentButton != null) {
             confirmAppointmentButton.setOnClickListener(v -> {
                 if (selectedCalendar != null && !selectedTimeSlot.isEmpty()) {
@@ -103,6 +112,9 @@ public class appointment extends AppCompatActivity {
 
                     // Start the reminder service
                     startReminderService();
+
+                    // Start the availabilty service
+                    startAvailabilityService();
 
                     Toast.makeText(this,
                             "Appointment confirmed for " + date + " at " + selectedTimeSlot + "\n" +
@@ -129,6 +141,7 @@ public class appointment extends AppCompatActivity {
         // Initialize the adapter with empty list
         timeSlotsAdapter = new TimeSlotsAdapter(new ArrayList<>(), timeSlot -> {
             selectedTimeSlot = timeSlot;
+            isCustomTime = false; // Reset custom time flag
             if (timeSlotsAdapter != null) {
                 timeSlotsAdapter.setSelectedTimeSlot(timeSlot);
             }
@@ -190,6 +203,103 @@ public class appointment extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    // NEW METHOD: Show custom date and time picker
+    private void showCustomDateTimePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        // First, show date picker
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(selectedYear, selectedMonth, selectedDay);
+
+                    // Check if selected day is Sunday
+                    if (selectedCalendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                        Toast.makeText(this, "Sunday is not available for appointments", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Check if selected date is in the past
+                    Calendar today = Calendar.getInstance();
+                    today.set(Calendar.HOUR_OF_DAY, 0);
+                    today.set(Calendar.MINUTE, 0);
+                    today.set(Calendar.SECOND, 0);
+                    today.set(Calendar.MILLISECOND, 0);
+
+                    selectedCalendar.set(Calendar.HOUR_OF_DAY, 0);
+                    selectedCalendar.set(Calendar.MINUTE, 0);
+                    selectedCalendar.set(Calendar.SECOND, 0);
+                    selectedCalendar.set(Calendar.MILLISECOND, 0);
+
+                    if (selectedCalendar.before(today)) {
+                        Toast.makeText(this, "Cannot select past dates", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // After date is selected, show time picker
+                    showTimePicker(selectedYear, selectedMonth, selectedDay);
+                },
+                year, month, day
+        );
+
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.show();
+    }
+
+    // NEW METHOD: Show time picker dialog
+    private void showTimePicker(int year, int month, int day) {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                this,
+                (view, selectedHour, selectedMinute) -> {
+                    // Format the selected time
+                    selectedTimeSlot = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+                    isCustomTime = true;
+
+                    // Update the selected date display
+                    updateSelectedDate(year, month, day);
+
+                    // Show selected time in the UI
+                    if (selectedDateText != null) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+                        selectedCalendar.set(year, month, day);
+                        String dateString = "Selected: " + sdf.format(selectedCalendar.getTime()) + " at " + selectedTimeSlot;
+                        selectedDateText.setText(dateString);
+                        selectedDateText.setVisibility(View.VISIBLE);
+                    }
+
+                    // Hide time slots recycler view (not needed for custom time)
+                    if (availableTimeTitle != null) {
+                        availableTimeTitle.setVisibility(View.GONE);
+                    }
+                    if (timeSlotsRecyclerView != null) {
+                        timeSlotsRecyclerView.setVisibility(View.GONE);
+                    }
+
+                    // Show and enable confirm button
+                    if (confirmAppointmentButton != null) {
+                        confirmAppointmentButton.setVisibility(View.VISIBLE);
+                        confirmAppointmentButton.setEnabled(true);
+                        confirmAppointmentButton.setAlpha(1f);
+                    }
+
+                    Toast.makeText(this, "Custom time selected: " + selectedTimeSlot, Toast.LENGTH_SHORT).show();
+                },
+                hour,
+                minute,
+                true // 24-hour format
+        );
+
+        timePickerDialog.show();
+    }
+
     private void updateSelectedDate(int year, int month, int day) {
         if (selectedDateText == null) return;
 
@@ -207,6 +317,7 @@ public class appointment extends AppCompatActivity {
             availableTimeSlots = new ArrayList<>();
         }
         availableTimeSlots.clear();
+        isCustomTime = false; // Reset when using predefined slots
 
         int dayOfWeek = selectedDate.get(Calendar.DAY_OF_WEEK);
 
@@ -259,6 +370,7 @@ public class appointment extends AppCompatActivity {
     private void resetSelection() {
         // Reset selected time
         selectedTimeSlot = "";
+        isCustomTime = false;
 
         // Reset UI state
         if (confirmAppointmentButton != null) {
@@ -273,7 +385,7 @@ public class appointment extends AppCompatActivity {
         }
     }
 
-    // NEW METHOD: Save appointment to SharedPreferences
+    // Save appointment to SharedPreferences
     private void saveAppointmentToPreferences() {
         // Combine date and time into one string
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -286,14 +398,20 @@ public class appointment extends AppCompatActivity {
         editor.putString("appointment_datetime", dateTimeStr);
         editor.apply();
 
-        Log.d("AppointmentActivity", "Saved appointment: " + dateTimeStr);
+        Log.d("AppointmentActivity", "Saved appointment: " + dateTimeStr + (isCustomTime ? " (Custom time)" : " (Predefined slot)"));
     }
 
-    // NEW METHOD: Start the reminder service
+    // Start the reminder service
     private void startReminderService() {
         Intent serviceIntent = new Intent(this, AppointmentReminderService.class);
         startService(serviceIntent);
         Log.d("AppointmentActivity", "Reminder service started!");
+    }
+    // Start the doctor availability service
+    private void startAvailabilityService() {
+        Intent serviceIntent = new Intent(this, DoctorAvailabilityService.class);
+        startService(serviceIntent);
+        Log.d("AppointmentActivity", "Availability service started!");
     }
 
     @Override

@@ -381,7 +381,21 @@
             app:icon="@drawable/date"
             app:iconGravity="textStart"
             app:iconPadding="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/customTimeButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Enter Custom Date and Time"
+            android:textColor="@color/white"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/date"
+            app:iconGravity="textStart"
+            app:iconPadding="12dp" />
     </LinearLayout>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
