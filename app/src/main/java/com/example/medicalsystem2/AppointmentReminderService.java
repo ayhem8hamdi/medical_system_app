@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.os.VibrationEffect;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -37,7 +38,7 @@ public class AppointmentReminderService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "Service Created!");
+        Log.d(TAG, "========== Service Created! ==========");
 
         createNotificationChannel();
         handler = new Handler();
@@ -47,14 +48,14 @@ public class AppointmentReminderService extends Service {
             @Override
             public void run() {
                 checkForUpcomingAppointments();
-                handler.postDelayed(this, 60000); // Check every 60 seconds
+                handler.postDelayed(this, 5000); // Check every 5 seconds
             }
         };
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "Service Started!");
+        Log.d(TAG, "========== Service Started! ==========");
 
         // Start checking for appointments
         handler.post(checkAppointmentRunnable);
@@ -78,34 +79,54 @@ public class AppointmentReminderService extends Service {
 
             Calendar now = Calendar.getInstance();
 
-            // Calculate difference in minutes
+            // Set seconds to 0 for accurate comparison
+            appointmentTime.set(Calendar.SECOND, 0);
+            now.set(Calendar.SECOND, 0);
+
+            // Calculate difference in seconds
             long diffInMillis = appointmentTime.getTimeInMillis() - now.getTimeInMillis();
-            long diffInMinutes = diffInMillis / (60 * 1000);
+            long diffInSeconds = diffInMillis / 1000;
+            long diffInMinutes = diffInSeconds / 60;
 
-            Log.d(TAG, "Minutes until appointment: " + diffInMinutes);
+            Log.d(TAG, "════════════════════════════════════════");
+            Log.d(TAG, "📅 Appointment scheduled for: " + sdf.format(appointmentTime.getTime()));
+            Log.d(TAG, "🕐 Current time: " + sdf.format(now.getTime()));
+            Log.d(TAG, "⏱️ Minutes until appointment: " + diffInMinutes);
+            Log.d(TAG, "⏱️ Seconds until appointment: " + diffInSeconds);
+            Log.d(TAG, "════════════════════════════════════════");
 
-            // If appointment is in 30 minutes (between 29 and 31 to catch it)
-            if (diffInMinutes >= 29 && diffInMinutes <= 31 && !notificationShown) {
+            // If appointment is in 1 minute (between 50 and 70 seconds to catch it reliably)
+            if (diffInSeconds >= 50 && diffInSeconds <= 70 && !notificationShown) {
+                Log.d(TAG, "════════════════════════════════════════");
+                Log.d(TAG, "🔔 REMINDER TRIGGERED - Appointment in 1 minute!");
+                Log.d(TAG, "⏰ NOTIFICATION WILL BE SHOWN NOW");
+                Log.d(TAG, "════════════════════════════════════════");
                 showNotificationWithRingtone();
                 notificationShown = true;
-
-                // Clear appointment after notification
-                prefs.edit().remove("appointment_datetime").apply();
+            } else if (diffInSeconds >= 50 && diffInSeconds <= 70 && notificationShown) {
+                Log.d(TAG, "⚠️ Reminder already shown, waiting for appointment");
+            } else if (diffInSeconds > 70) {
+                Log.d(TAG, "⏳ Appointment is still " + diffInSeconds + " seconds away (need to wait until 50-70 seconds)");
+            } else if (diffInSeconds < 50) {
+                Log.d(TAG, "⚡ Appointment is very soon! " + diffInSeconds + " seconds remaining");
             }
 
             // If appointment time has passed, clear it
-            if (diffInMinutes < 0) {
+            if (diffInSeconds < 0) {
+                Log.d(TAG, "════════════════════════════════════════");
+                Log.d(TAG, "✅ Appointment time has passed, clearing from preferences");
+                Log.d(TAG, "════════════════════════════════════════");
                 prefs.edit().remove("appointment_datetime").apply();
                 notificationShown = false;
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error checking appointment: " + e.getMessage());
+            Log.e(TAG, "❌ Error checking appointment: " + e.getMessage(), e);
         }
     }
 
     private void showNotificationWithRingtone() {
-        Log.d(TAG, "Showing notification with ringtone!");
+        Log.d(TAG, "📢 Showing notification with ringtone!");
 
         // Create intent to open appointment activity when notification is tapped
         Intent intent = new Intent(this, appointment.class);
@@ -116,7 +137,7 @@ public class AppointmentReminderService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("Appointment Reminder 🏥")
-                .setContentText("Your appointment is in 30 minutes!")
+                .setContentText("Your appointment is in 1 minute!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setAutoCancel(true)
@@ -126,6 +147,8 @@ public class AppointmentReminderService extends Service {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
+
+        Log.d(TAG, "✅ Notification posted to NotificationManager");
 
         // Play ringtone
         playRingtone();
@@ -140,7 +163,7 @@ public class AppointmentReminderService extends Service {
             ringtone = RingtoneManager.getRingtone(getApplicationContext(), notification);
             ringtone.play();
 
-            Log.d(TAG, "Ringtone playing!");
+            Log.d(TAG, "🔊 Ringtone is playing!");
 
             // Stop ringtone after 30 seconds automatically
             handler.postDelayed(new Runnable() {
@@ -151,14 +174,14 @@ public class AppointmentReminderService extends Service {
             }, 30000);
 
         } catch (Exception e) {
-            Log.e(TAG, "Error playing ringtone: " + e.getMessage());
+            Log.e(TAG, "❌ Error playing ringtone: " + e.getMessage(), e);
         }
     }
 
     private void stopRingtone() {
         if (ringtone != null && ringtone.isPlaying()) {
             ringtone.stop();
-            Log.d(TAG, "Ringtone stopped!");
+            Log.d(TAG, "🔇 Ringtone stopped!");
         }
     }
 
@@ -167,12 +190,28 @@ public class AppointmentReminderService extends Service {
             Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             if (vibrator != null && vibrator.hasVibrator()) {
                 long[] pattern = {0, 1000, 500, 1000, 500, 1000};
-                vibrator.vibrate(pattern, -1);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    // For Android 13+
+                    vibrator.vibrate(
+                            VibrationEffect.createWaveform(pattern, -1),
+                            new android.media.AudioAttributes.Builder()
+                                    .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                    .build()
+                    );
+                } else {
+                    // For older Android versions
+                    vibrator.vibrate(pattern, -1);
+                }
+                Log.d(TAG, "📳 Phone is vibrating!");
+            } else {
+                Log.w(TAG, "⚠️ Device does not have vibrator");
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error vibrating: " + e.getMessage());
+            Log.e(TAG, "❌ Error vibrating: " + e.getMessage(), e);
         }
     }
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -186,13 +225,14 @@ public class AppointmentReminderService extends Service {
 
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
+            Log.d(TAG, "✅ Notification channel created");
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Service Destroyed!");
+        Log.d(TAG, "========== Service Destroyed! ==========");
 
         // Stop handler
         if (handler != null) {

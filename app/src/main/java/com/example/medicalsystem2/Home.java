@@ -4,18 +4,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -23,7 +23,13 @@ public class Home extends AppCompatActivity {
 
     private ShapeableImageView avatarImage;
     private ActivityResultLauncher<Intent> pickImageLauncher;
+    private ActivityResultLauncher<Intent> appointmentResultLauncher;
     private BroadcastReceiver statusReceiver;
+
+    // Reminder card views
+    private CardView reminderCard;
+    private TextView appointmentReminderText;
+    private ImageView closeReminderButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,9 @@ public class Home extends AppCompatActivity {
             emailText.setText(email);
         }
 
+        // Initialize reminder card views
+        initializeReminderCard();
+
         // Initialize ActivityResultLauncher for picking image
         pickImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -53,6 +62,16 @@ public class Home extends AppCompatActivity {
                 }
         );
 
+        // Initialize ActivityResultLauncher for appointment booking
+        appointmentResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        handleAppointmentResult(result.getData());
+                    }
+                }
+        );
+
         // Set onClickListener to open gallery
         avatarImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -60,46 +79,100 @@ public class Home extends AppCompatActivity {
             pickImageLauncher.launch(intent);
         });
 
-        // Setup click listeners for Book Now buttons
-        setupBookNowButtons();
+        // Setup click listener for single Book Now button
+        setupBookNowButton();
 
         // Register broadcast receiver for doctor status updates
         setupStatusReceiver();
+
+        // Load and display saved appointment if it exists
+        loadSavedAppointment();
 
         // Start the availability service
         startAvailabilityService();
     }
 
-    private void setupBookNowButtons() {
-        // Find the doctors container
-        ViewGroup doctorsContainer = findViewById(R.id.doctorsContainer);
-        if (doctorsContainer == null) {
-            // Try to find it in the horizontal scroll view
-            HorizontalScrollView scrollView = findViewById(R.id.doctorsScrollView);
-            if (scrollView != null) {
-                doctorsContainer = (ViewGroup) scrollView.getChildAt(0);
-            }
-        }
+    private void initializeReminderCard() {
+        reminderCard = findViewById(R.id.reminderCard);
+        appointmentReminderText = findViewById(R.id.appointmentReminderText);
+        closeReminderButton = findViewById(R.id.closeReminderButton);
 
-        if (doctorsContainer != null) {
-            // Loop through all doctor cards in the container
-            for (int i = 0; i < doctorsContainer.getChildCount(); i++) {
-                View card = doctorsContainer.getChildAt(i);
-                Button bookButton = card.findViewById(R.id.bookButton);
+        if (closeReminderButton != null) {
+            closeReminderButton.setOnClickListener(v -> hideReminderCard());
+        }
+    }
+
+    private void setupBookNowButton() {
+        try {
+            // Find the doctor card frame layout first
+            View doctorCardFrame = findViewById(R.id.doctorCard1);
+
+            if (doctorCardFrame != null) {
+                // Find the book button inside the included layout
+                View bookButton = doctorCardFrame.findViewById(R.id.bookButton);
+
                 if (bookButton != null) {
-                    bookButton.setOnClickListener(v -> openAppointmentScreen());
+                    bookButton.setOnClickListener(v -> {
+                        Log.d("HomeActivity", "Book button clicked");
+                        openAppointmentScreenForResult();
+                    });
+                    Log.d("HomeActivity", "Book button listener set successfully");
+                } else {
+                    Log.e("HomeActivity", "Book button not found in doctor card");
                 }
+            } else {
+                Log.e("HomeActivity", "Doctor card frame not found");
             }
+        } catch (Exception e) {
+            Log.e("HomeActivity", "Error setting up book button: " + e.getMessage());
         }
     }
 
-    private void openAppointmentScreen() {
-        // Simple intent to open appointment screen
+    private void openAppointmentScreenForResult() {
+        // Launch appointment activity with result expectation
         Intent intent = new Intent(Home.this, appointment.class);
-        startActivity(intent);
+        appointmentResultLauncher.launch(intent);
     }
 
-    // NEW METHOD: Setup broadcast receiver to listen for status changes
+    private void handleAppointmentResult(Intent data) {
+        // Get appointment data from result
+        String appointmentDateTime = data.getStringExtra("appointment_datetime");
+        boolean isCustomTime = data.getBooleanExtra("is_custom_time", false);
+
+        if (appointmentDateTime != null && !appointmentDateTime.isEmpty()) {
+            displayAppointmentReminder(appointmentDateTime);
+            Log.d("HomeActivity", "Appointment set: " + appointmentDateTime + " (Custom: " + isCustomTime + ")");
+        }
+    }
+
+    private void displayAppointmentReminder(String appointmentDateTime) {
+        if (appointmentReminderText != null && reminderCard != null) {
+            // Format the appointment text
+            String reminderText = "You have an appointment on " + appointmentDateTime;
+            appointmentReminderText.setText(reminderText);
+
+            // Show the reminder card
+            reminderCard.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideReminderCard() {
+        if (reminderCard != null) {
+            reminderCard.setVisibility(View.GONE);
+        }
+    }
+
+    private void loadSavedAppointment() {
+        // Load appointment from SharedPreferences if it exists
+        SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
+        String savedAppointment = prefs.getString("appointment_datetime", "");
+
+        if (!savedAppointment.isEmpty()) {
+            displayAppointmentReminder(savedAppointment);
+        }
+    }
+
+    // Setup broadcast receiver to listen for status changes
     private void setupStatusReceiver() {
         statusReceiver = new BroadcastReceiver() {
             @Override
@@ -114,57 +187,60 @@ public class Home extends AppCompatActivity {
 
         // Register the receiver
         IntentFilter filter = new IntentFilter(DoctorAvailabilityService.ACTION_STATUS_CHANGED);
-        registerReceiver(statusReceiver, filter);
-        Log.d("HomeActivity", "BroadcastReceiver registered");
+        try {
+            registerReceiver(statusReceiver, filter);
+            Log.d("HomeActivity", "BroadcastReceiver registered");
+        } catch (Exception e) {
+            Log.e("HomeActivity", "Error registering receiver: " + e.getMessage());
+        }
     }
 
-    // NEW METHOD: Update doctor status in UI
+    // Update doctor status in UI
     private void updateDoctorStatus(String status) {
         Log.d("HomeActivity", "Updating doctor status to: " + status);
 
-        // Find the first doctor card (you can modify this to update specific doctors)
-        ViewGroup doctorsContainer = findViewById(R.id.doctorsContainer);
-        if (doctorsContainer == null) {
-            HorizontalScrollView scrollView = findViewById(R.id.doctorsScrollView);
-            if (scrollView != null) {
-                doctorsContainer = (ViewGroup) scrollView.getChildAt(0);
-            }
-        }
+        try {
+            // Find the doctor card
+            View doctorCardFrame = findViewById(R.id.doctorCard1);
 
-        if (doctorsContainer != null && doctorsContainer.getChildCount() > 0) {
-            // Update the FIRST doctor card
-            View firstDoctorCard = doctorsContainer.getChildAt(0);
+            if (doctorCardFrame != null) {
+                TextView statusText = doctorCardFrame.findViewById(R.id.statusText);
+                View statusDot = doctorCardFrame.findViewById(R.id.statusDot);
 
-            TextView statusText = firstDoctorCard.findViewById(R.id.statusText);
-            View statusDot = firstDoctorCard.findViewById(R.id.statusDot);
+                if (statusText != null && statusDot != null) {
+                    statusText.setText(status);
 
-            if (statusText != null && statusDot != null) {
-                statusText.setText(status);
-
-                if (status.equals(DoctorAvailabilityService.STATUS_AVAILABLE)) {
-                    // Green for available
-                    statusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-                    statusDot.setBackgroundResource(R.drawable.status_dot_green);
-                    Log.d("HomeActivity", "Status updated to AVAILABLE (GREEN)");
+                    if (status.equals(DoctorAvailabilityService.STATUS_AVAILABLE)) {
+                        // Green for available
+                        statusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                        statusDot.setBackgroundResource(R.drawable.status_dot_green);
+                        Log.d("HomeActivity", "Status updated to AVAILABLE (GREEN)");
+                    } else {
+                        // Red for in consultation
+                        statusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                        statusDot.setBackgroundResource(R.drawable.status_dot_red);
+                        Log.d("HomeActivity", "Status updated to IN CONSULTATION (RED)");
+                    }
                 } else {
-                    // Red for in consultation
-                    statusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                    statusDot.setBackgroundResource(R.drawable.status_dot_red);
-                    Log.d("HomeActivity", "Status updated to IN CONSULTATION (RED)");
+                    Log.e("HomeActivity", "Could not find statusText or statusDot views!");
                 }
             } else {
-                Log.e("HomeActivity", "Could not find statusText or statusDot views!");
+                Log.e("HomeActivity", "Doctor card not found!");
             }
-        } else {
-            Log.e("HomeActivity", "Doctor container is null or empty!");
+        } catch (Exception e) {
+            Log.e("HomeActivity", "Error updating doctor status: " + e.getMessage());
         }
     }
 
-    // NEW METHOD: Start availability service
+    // Start availability service
     private void startAvailabilityService() {
-        Intent serviceIntent = new Intent(this, DoctorAvailabilityService.class);
-        startService(serviceIntent);
-        Log.d("HomeActivity", "Availability service started");
+        try {
+            Intent serviceIntent = new Intent(this, DoctorAvailabilityService.class);
+            startService(serviceIntent);
+            Log.d("HomeActivity", "Availability service started");
+        } catch (Exception e) {
+            Log.e("HomeActivity", "Error starting availability service: " + e.getMessage());
+        }
     }
 
     @Override

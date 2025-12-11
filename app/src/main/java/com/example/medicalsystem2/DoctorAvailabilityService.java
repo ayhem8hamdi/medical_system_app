@@ -29,12 +29,12 @@ public class DoctorAvailabilityService extends Service {
         Log.d(TAG, "Service Created!");
         handler = new Handler();
 
-        // Check status every 10 seconds for testing
+        // Check status every 5 seconds for real-time updates
         checkStatusRunnable = new Runnable() {
             @Override
             public void run() {
                 checkDoctorStatus();
-                handler.postDelayed(this, 10000); // Check every 10 seconds
+                handler.postDelayed(this, 5000); // Check every 5 seconds
             }
         };
     }
@@ -57,26 +57,34 @@ public class DoctorAvailabilityService extends Service {
         }
 
         try {
+            // Match the format used in appointment.java: yyyy-MM-dd HH:mm
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             Calendar appointmentTime = Calendar.getInstance();
+
+            // Parse the saved appointment time
             appointmentTime.setTime(sdf.parse(appointmentDateTime));
 
             Calendar now = Calendar.getInstance();
 
-            // Calculate consultation end time (appointment + 2 minutes)
+            // Set appointment time with seconds to 0 for accurate comparison
+            appointmentTime.set(Calendar.SECOND, 0);
+            now.set(Calendar.SECOND, 0);
+
+            // Calculate consultation end time (appointment + 1 minute for testing)
             Calendar consultationEndTime = (Calendar) appointmentTime.clone();
-            consultationEndTime.add(Calendar.MINUTE, 2);
+            consultationEndTime.add(Calendar.MINUTE, 1);
 
             Log.d(TAG, "Appointment time: " + sdf.format(appointmentTime.getTime()));
             Log.d(TAG, "Current time: " + sdf.format(now.getTime()));
             Log.d(TAG, "Consultation ends: " + sdf.format(consultationEndTime.getTime()));
 
             // Check if we're currently in consultation period
-            if (now.after(appointmentTime) && now.before(consultationEndTime)) {
+            if (now.getTimeInMillis() >= appointmentTime.getTimeInMillis() &&
+                    now.getTimeInMillis() < consultationEndTime.getTimeInMillis()) {
                 // Doctor is IN CONSULTATION
                 Log.d(TAG, "Doctor is IN CONSULTATION");
                 updateStatus(STATUS_IN_CONSULTATION);
-            } else if (now.after(consultationEndTime)) {
+            } else if (now.getTimeInMillis() >= consultationEndTime.getTimeInMillis()) {
                 // Consultation ended, doctor is AVAILABLE again
                 Log.d(TAG, "Consultation ended, Doctor is AVAILABLE");
                 updateStatus(STATUS_AVAILABLE);
@@ -89,7 +97,7 @@ public class DoctorAvailabilityService extends Service {
             }
 
         } catch (Exception e) {
-            Log.e(TAG, "Error checking status: " + e.getMessage());
+            Log.e(TAG, "Error checking status: " + e.getMessage(), e);
             updateStatus(STATUS_AVAILABLE);
         }
     }

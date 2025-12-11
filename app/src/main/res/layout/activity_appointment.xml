@@ -4,15 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:paddingStart="25dp"
-    android:paddingEnd="25dp">
+    android:background="@color/white">
 
     <LinearLayout
         android:id="@+id/appBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/backArrow"
+            android:id="@+id/backButton"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:clickable="true"
@@ -55,52 +55,50 @@
             android:src="@drawable/three_points" />
     </LinearLayout>
 
-    <View
-        android:id="@+id/spaceAfterAppBar"
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
-        android:layout_height="37dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBar" />
-
-    <LinearLayout
-        android:id="@+id/mainContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceAfterAppBar">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="161dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
-
-            <ImageView
-                android:id="@+id/doctorImage"
-                android:layout_width="match_parent"
-                android:layout_height="168dp"
-                android:adjustViewBounds="true"
-                android:contentDescription="Doctor image"
-                android:scaleType="centerCrop"
-                android:src="@drawable/doctor_girl" />
-        </androidx.cardview.widget.CardView>
+        app:layout_constraintTop_toBottomOf="@id/appBar">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:paddingTop="8dp">
 
+            <!-- Doctor Image Section (Centered) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/doctorImageCard"
+                android:layout_width="200dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <ImageView
+                    android:id="@+id/doctorImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="Doctor image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/doctor_girl" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Doctor Info Section -->
             <LinearLayout
+                android:id="@+id/doctorInfoSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:gravity="center">
 
                 <TextView
                     android:id="@+id/doctorName"
@@ -108,25 +106,26 @@
                     android:layout_height="wrap_content"
                     android:text="Dr. Emily Carter"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:gravity="center" />
 
                 <View
                     android:layout_width="0dp"
-                    android:layout_height="3dp" />
+                    android:layout_height="4dp" />
 
                 <TextView
                     android:id="@+id/doctorSpecialty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cardiology | 12+ Years Experience"
-                    android:textColor="@color/black"
-                    android:textSize="10sp"
-                    android:textStyle="normal" />
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp"
+                    android:gravity="center" />
 
                 <View
                     android:layout_width="0dp"
-                    android:layout_height="7dp" />
+                    android:layout_height="8dp" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -140,283 +139,257 @@
                         android:text="$25"
                         android:textColor="@color/colorPrimary"
                         android:textFontWeight="500"
-                        android:textSize="12sp" />
+                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text=" Per session"
-                        android:textColor="@color/black"
-                        android:textFontWeight="500"
+                        android:textColor="@color/textColor"
+                        android:textFontWeight="400"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <View
                 android:layout_width="0dp"
-                android:layout_height="24dp" />
+                android:layout_height="20dp" />
 
+            <!-- Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="horizontal"
                 android:weightSum="2">
-
-                <TextView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/messageButton"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="45dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/border"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
                     android:text="Email"
-                    android:textColor="@color/textColor"
-                    android:textSize="9sp" />
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/white"
+                    app:cornerRadius="10dp"
+                    app:icon="@android:drawable/ic_dialog_email"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/colorPrimary"
+                    app:strokeColor="@color/colorPrimary"
+                    app:strokeWidth="1dp" />
 
-                <TextView
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/callButton"
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/border"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
                     android:text="Call"
-                    android:textColor="@color/colorOnPrimary"
-                    android:textSize="9sp" />
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/baseline_local_phone_24"
+                    app:iconTint="@color/white"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    android:backgroundTint="@color/colorPrimary" />
+
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
 
-    <View
-        android:id="@+id/spaceAfterDoctor"
-        android:layout_width="0dp"
-        android:layout_height="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mainContent" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="24dp" />
 
-    <LinearLayout
-        android:id="@+id/statsContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="horizontal"
-        android:weightSum="3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceAfterDoctor">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="7dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/secondaryColor"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
-
+            <!-- Stats Section -->
             <LinearLayout
+                android:id="@+id/statsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:layout_marginBottom="24dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Patients"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-                <View
+                <androidx.cardview.widget.CardView
                     android:layout_width="0dp"
-                    android:layout_height="3dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="200+"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/secondaryColor"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Patients"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="200+"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/secondaryColor"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Experience"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="7 Years"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/secondaryColor"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Rating"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="4dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="4.8"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_marginEnd="7dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/secondaryColor"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
-
+            <!-- Schedule Section -->
             <LinearLayout
+                android:id="@+id/scheduleSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/scheduleTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Experience"
+                    android:text="Create Schedule"
                     android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="3dp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/scheduleDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="7 Years"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
+                    android:layout_marginTop="4dp"
+                    android:text="Select a convenient date for your appointment"
+                    android:textColor="@color/textColor"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/openFullCalendarButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Pick from full calendar"
+                    android:textColor="@color/colorPrimary"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/date"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:strokeColor="@color/colorPrimary"
+                    app:strokeWidth="1dp"
+                    android:backgroundTint="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/customTimeButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Enter Custom Date and Time"
+                    android:textColor="@color/white"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/date"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    android:backgroundTint="@color/colorPrimary" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="7dp"
-            android:layout_weight="1"
-            app:cardBackgroundColor="@color/secondaryColor"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="0dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="Rating"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="3dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="4.8"
-                    android:textColor="@color/black"
-                    android:textSize="15sp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/spaceAfterStats"
-        android:layout_width="0dp"
-        android:layout_height="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/statsContainer" />
-
-    <LinearLayout
-        android:id="@+id/scheduleSection"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/spaceAfterStats">
-
-        <TextView
-            android:id="@+id/scheduleTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create Schedule"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/scheduleDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Select a convenient date for your appointment"
-            android:textColor="@color/textColor"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/openFullCalendarButton"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="@color/white"
-            android:strokeColor="@color/colorPrimary"
-            android:text="Pick from full calendar"
-            android:textColor="@color/black"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/date"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/customTimeButton"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="8dp"
-            android:backgroundTint="@color/colorPrimary"
-            android:text="Enter Custom Date and Time"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/date"
-            app:iconGravity="textStart"
-            app:iconPadding="12dp" />
-    </LinearLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/scheduleSection">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
-
+            <!-- Time Slots Section -->
             <TextView
                 android:id="@+id/selectedDateText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
                 android:text="Selected Date: "
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -427,7 +400,7 @@
                 android:id="@+id/availableTimeTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:text="Available Time Slots"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -446,11 +419,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="@color/colorPrimary"
+                android:layout_marginBottom="16dp"
                 android:text="Confirm Appointment"
                 android:textColor="@color/white"
                 android:visibility="gone"
-                app:cornerRadius="12dp" />
+                app:cornerRadius="12dp"
+                android:backgroundTint="@color/colorPrimary" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
