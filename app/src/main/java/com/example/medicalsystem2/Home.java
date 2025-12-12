@@ -12,8 +12,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -21,9 +19,10 @@ import com.google.android.material.imageview.ShapeableImageView;
 
 public class Home extends AppCompatActivity {
 
+    private static final int APPOINTMENT_REQUEST_CODE = 100;
+    private static final int GALLERY_REQUEST_CODE = 200;
+
     private ShapeableImageView avatarImage;
-    private ActivityResultLauncher<Intent> pickImageLauncher;
-    private ActivityResultLauncher<Intent> appointmentResultLauncher;
     private BroadcastReceiver statusReceiver;
 
     // Reminder card views
@@ -49,37 +48,14 @@ public class Home extends AppCompatActivity {
         // Initialize reminder card views
         initializeReminderCard();
 
-        // Initialize ActivityResultLauncher for picking image
-        pickImageLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri imageUri = result.getData().getData();
-                        if (imageUri != null) {
-                            avatarImage.setImageURI(imageUri);
-                        }
-                    }
-                }
-        );
-
-        // Initialize ActivityResultLauncher for appointment booking
-        appointmentResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        handleAppointmentResult(result.getData());
-                    }
-                }
-        );
-
         // Set onClickListener to open gallery
         avatarImage.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType("image/*");
-            pickImageLauncher.launch(intent);
+            startActivityForResult(intent, GALLERY_REQUEST_CODE);
         });
 
-        // Setup click listener for single Book Now button
+        // Setup click listener for Book Now button
         setupBookNowButton();
 
         // Register broadcast receiver for doctor status updates
@@ -114,7 +90,8 @@ public class Home extends AppCompatActivity {
                 if (bookButton != null) {
                     bookButton.setOnClickListener(v -> {
                         Log.d("HomeActivity", "Book button clicked");
-                        openAppointmentScreenForResult();
+                        Intent intent = new Intent(Home.this, appointment.class);
+                        startActivityForResult(intent, APPOINTMENT_REQUEST_CODE);
                     });
                     Log.d("HomeActivity", "Book button listener set successfully");
                 } else {
@@ -128,20 +105,28 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    private void openAppointmentScreenForResult() {
-        // Launch appointment activity with result expectation
-        Intent intent = new Intent(Home.this, appointment.class);
-        appointmentResultLauncher.launch(intent);
-    }
+    // ⭐ NEW METHOD - Handle results from launched activities
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-    private void handleAppointmentResult(Intent data) {
-        // Get appointment data from result
-        String appointmentDateTime = data.getStringExtra("appointment_datetime");
-        boolean isCustomTime = data.getBooleanExtra("is_custom_time", false);
+        // Handle appointment booking result
+        if (requestCode == APPOINTMENT_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            String appointmentDateTime = data.getStringExtra("appointment_datetime");
+            boolean isCustomTime = data.getBooleanExtra("is_custom_time", false);
 
-        if (appointmentDateTime != null && !appointmentDateTime.isEmpty()) {
-            displayAppointmentReminder(appointmentDateTime);
-            Log.d("HomeActivity", "Appointment set: " + appointmentDateTime + " (Custom: " + isCustomTime + ")");
+            if (appointmentDateTime != null && !appointmentDateTime.isEmpty()) {
+                displayAppointmentReminder(appointmentDateTime);
+                Log.d("HomeActivity", "Appointment set: " + appointmentDateTime + " (Custom: " + isCustomTime + ")");
+            }
+        }
+
+        // Handle gallery image result
+        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            Uri imageUri = data.getData();
+            if (imageUri != null) {
+                avatarImage.setImageURI(imageUri);
+            }
         }
     }
 

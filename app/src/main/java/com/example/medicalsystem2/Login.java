@@ -31,9 +31,10 @@ public class Login extends AppCompatActivity {
         // Click login button → go to Home screen and send email
         loginButton.setOnClickListener(v -> {
             String email = emailEditText.getText().toString().trim();
-
+            Bundle bundle = new Bundle();
+            bundle.putString("user_email", email);
             Intent intent = new Intent(Login.this, Home.class);
-            intent.putExtra("user_email", email); // send email inside bundle
+            intent.putExtras(bundle);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();

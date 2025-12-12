@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
                 progressStatus++;
                 handler.post(() -> progressBar.setProgress(progressStatus));
                 try {
-                    Thread.sleep(50); // 100 * 50ms = 5 seconds total
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
