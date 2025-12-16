@@ -108,7 +108,7 @@ public class Home extends AppCompatActivity {
 
         // ================= BROADCAST RECEIVER =================
         // Register receiver to get updates about doctor's availability
-        setupStatusReceiver();
+      //  setupStatusReceiver(); : second service
 
         // ================= LOAD SAVED APPOINTMENT =================
         // Check SharedPreferences and display any existing appointment
@@ -147,7 +147,6 @@ public class Home extends AppCompatActivity {
                 if (bookButton != null) {
                     // Step 3: Set a click listener for the book button
                     bookButton.setOnClickListener(v -> {
-                        Log.d("HomeActivity", "Book button clicked");
 
                         // Launch the appointment activity when button is clicked
                         Intent intent = new Intent(Home.this, appointment.class);
@@ -156,8 +155,6 @@ public class Home extends AppCompatActivity {
                         startActivityForResult(intent, APPOINTMENT_REQUEST_CODE);
                     });
 
-                    // Debug log to confirm listener was successfully attached
-                    Log.d("HomeActivity", "Book button listener set successfully");
                 } else {
                     // Log error if book button could not be found inside doctor card
                     Log.e("HomeActivity", "Book button not found in doctor card");
@@ -171,37 +168,50 @@ public class Home extends AppCompatActivity {
             Log.e("HomeActivity", "Error setting up book button: " + e.getMessage());
         }
     }
-
-    // ⭐ NEW METHOD - Handle results from launched activities
+    // Handles results returned from activities that were launched with startActivityForResult()
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Handle appointment booking result
+        // -----------------------------
+        // 1️⃣ Handle result from appointment booking activity
+        // -----------------------------
         if (requestCode == APPOINTMENT_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+            // Extract the appointment datetime string from the returned intent
+            // data passed through bundle
             String appointmentDateTime = data.getStringExtra("appointment_datetime");
+
+            // Extract a flag to know if the appointment time was custom
             boolean isCustomTime = data.getBooleanExtra("is_custom_time", false);
 
             if (appointmentDateTime != null && !appointmentDateTime.isEmpty()) {
+                // Display the appointment reminder in the UI
                 displayAppointmentReminder(appointmentDateTime);
+
                 Log.d("HomeActivity", "Appointment set: " + appointmentDateTime + " (Custom: " + isCustomTime + ")");
 
-                // ✅ NEW: Check bounded service status after appointment booked
+                // If bounded service is connected, update the UI with the service status
                 if (isBoundedServiceConnected && boundedService != null) {
+                    // on a consommer le service through binder
                     String status = boundedService.getAppointmentStatus();
                     updateBoundedServiceUI(status);
                 }
             }
         }
 
-        // Handle gallery image result
+        // -----------------------------
+        // 2️⃣ Handle result from gallery picker activity
+        // -----------------------------
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
+            Uri imageUri = data.getData(); // Get the selected image URI
             if (imageUri != null) {
+                // Set the selected image as the user's avatar
                 avatarImage.setImageURI(imageUri);
             }
+            // we could handle it in case of error when getting image
         }
     }
+
 
     private void displayAppointmentReminder(String appointmentDateTime) {
         if (appointmentReminderText != null && reminderCard != null) {
@@ -225,142 +235,155 @@ public class Home extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
         String savedAppointment = prefs.getString("appointment_datetime", "");
 
+        // 3️⃣ If a saved appointment exists (string is not empty), display it in the reminder card
         if (!savedAppointment.isEmpty()) {
             displayAppointmentReminder(savedAppointment);
         }
     }
+/*
+====================== DOCTOR AVAILABILITY UPDATE CODE ======================
 
-    // Setup broadcast receiver to listen for status changes
-    private void setupStatusReceiver() {
-        statusReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String status = intent.getStringExtra(DoctorAvailabilityService.EXTRA_STATUS);
-                if (status != null) {
-                    Log.d("HomeActivity", "Received status update: " + status);
-                    updateDoctorStatus(status);
-                }
+private void setupStatusReceiver() {
+    // 1️⃣ Create a new BroadcastReceiver instance
+    statusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // 2️⃣ Extract the status string sent from the service via Intent extras
+            String status = intent.getStringExtra(DoctorAvailabilityService.EXTRA_STATUS);
+
+            // 3️⃣ If a valid status is received, log it and update the doctor status in UI
+            if (status != null) {
+                Log.d("HomeActivity", "Received status update: " + status);
+                updateDoctorStatus(status); // Calls UI method to show green/red status
             }
-        };
-
-        // Register the receiver
-        IntentFilter filter = new IntentFilter(DoctorAvailabilityService.ACTION_STATUS_CHANGED);
-        try {
-            registerReceiver(statusReceiver, filter);
-            Log.d("HomeActivity", "BroadcastReceiver registered");
-        } catch (Exception e) {
-            Log.e("HomeActivity", "Error registering receiver: " + e.getMessage());
         }
+    };
+
+    // 4️⃣ Define an IntentFilter for the specific action sent by the service
+    IntentFilter filter = new IntentFilter(DoctorAvailabilityService.ACTION_STATUS_CHANGED);
+
+    // 5️⃣ Register the BroadcastReceiver with the system
+    try {
+        registerReceiver(statusReceiver, filter);
+        Log.d("HomeActivity", "BroadcastReceiver registered");
+    } catch (Exception e) {
+        Log.e("HomeActivity", "Error registering receiver: " + e.getMessage());
     }
+}
 
-    // Update doctor status in UI
-    private void updateDoctorStatus(String status) {
-        Log.d("HomeActivity", "Updating doctor status to: " + status);
+private void updateDoctorStatus(String status) {
+    Log.d("HomeActivity", "Updating doctor status to: " + status);
 
-        try {
-            // Find the doctor card
-            View doctorCardFrame = findViewById(R.id.doctorCard1);
+    try {
+        // Find the doctor card
+        View doctorCardFrame = findViewById(R.id.doctorCard1);
 
-            if (doctorCardFrame != null) {
-                TextView statusText = doctorCardFrame.findViewById(R.id.statusText);
-                View statusDot = doctorCardFrame.findViewById(R.id.statusDot);
+        if (doctorCardFrame != null) {
+            TextView statusText = doctorCardFrame.findViewById(R.id.statusText);
+            View statusDot = doctorCardFrame.findViewById(R.id.statusDot);
 
-                if (statusText != null && statusDot != null) {
-                    statusText.setText(status);
+            if (statusText != null && statusDot != null) {
+                statusText.setText(status);
 
-                    if (status.equals(DoctorAvailabilityService.STATUS_AVAILABLE)) {
-                        // Green for available
-                        statusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-                        statusDot.setBackgroundResource(R.drawable.status_dot_green);
-                        Log.d("HomeActivity", "Status updated to AVAILABLE (GREEN)");
-                    } else {
-                        // Red for in consultation
-                        statusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-                        statusDot.setBackgroundResource(R.drawable.status_dot_red);
-                        Log.d("HomeActivity", "Status updated to IN CONSULTATION (RED)");
-                    }
+                if (status.equals(DoctorAvailabilityService.STATUS_AVAILABLE)) {
+                    // Green for available
+                    statusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+                    statusDot.setBackgroundResource(R.drawable.status_dot_green);
+                    Log.d("HomeActivity", "Status updated to AVAILABLE (GREEN)");
                 } else {
-                    Log.e("HomeActivity", "Could not find statusText or statusDot views!");
+                    // Red for in consultation
+                    statusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+                    statusDot.setBackgroundResource(R.drawable.status_dot_red);
+                    Log.d("HomeActivity", "Status updated to IN CONSULTATION (RED)");
                 }
             } else {
-                Log.e("HomeActivity", "Doctor card not found!");
+                Log.e("HomeActivity", "Could not find statusText or statusDot views!");
             }
-        } catch (Exception e) {
-            Log.e("HomeActivity", "Error updating doctor status: " + e.getMessage());
+        } else {
+            Log.e("HomeActivity", "Doctor card not found!");
         }
+    } catch (Exception e) {
+        Log.e("HomeActivity", "Error updating doctor status: " + e.getMessage());
     }
+}
+
+====================== END OF DOCTOR AVAILABILITY UPDATE ======================
+*/
 
     // Start availability service
+    /**
+     * Starts the DoctorAvailabilityService, which is an unbounded (started) service.
+     * An unbounded service runs in the background independently of any activity.
+     * It is useful for tasks that need to continue even if the activity is destroyed.
+     * the service start through intent
+     */
     private void startAvailabilityService() {
         try {
+            // 1️⃣ Create an Intent to specify the service we want to start
+            // 'this' is the current Activity context
+            // DoctorAvailabilityService.class is the target service class
             Intent serviceIntent = new Intent(this, DoctorAvailabilityService.class);
+
+            // 2️⃣ Start the service using startService()
+            // This tells Android to start the service if it isn't already running
+            // Once started, it keeps running until it stops itself with stopSelf() or is killed by the system
             startService(serviceIntent);
-            Log.d("HomeActivity", "Availability service started");
+
+
         } catch (Exception e) {
+            // 4️⃣ Catch any exceptions that may occur while starting the service
+            // Log the error message for debugging purposes
             Log.e("HomeActivity", "Error starting availability service: " + e.getMessage());
         }
     }
+
 
     // ✅ NEW: BOUNDED SERVICE SETUP METHOD
     /**
      * Setup the connection between Home activity and AppointmentBoundedService
      */
     private void setupBoundedServiceConnection() {
-        Log.d("HomeActivity", "========== SETTING UP BOUNDED SERVICE ==========");
+        Log.d("HomeActivity", "SETTING UP BOUNDED SERVICE");
 
+        // ServiceConnection handles binding callbacks
         serviceConnection = new ServiceConnection() {
 
+            // Called when service is connected
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Log.d("HomeActivity", "✅ onServiceConnected() called");
-                Log.d("HomeActivity", "Service: " + name.getClassName());
 
-                // Get the Binder and cast it
+                // Cast IBinder to LocalBinder to access service
                 AppointmentBoundedService.LocalBinder binder =
                         (AppointmentBoundedService.LocalBinder) service;
 
-                // Get service reference
+                // Get service instance
                 boundedService = binder.getService();
                 isBoundedServiceConnected = true;
 
-                Log.d("HomeActivity", "========== SERVICE CONNECTED ==========");
-                Log.d("HomeActivity", "✅ Can now call service methods!");
+                // Optional: listen for status updates
+                boundedService.setStatusListener(newStatus -> updateBoundedServiceUI(newStatus));
 
-                // Set up listener for status updates
-                boundedService.setStatusListener(newStatus -> {
-                    Log.d("HomeActivity", "📢 Bounded Service Status Update: " + newStatus);
-                    updateBoundedServiceUI(newStatus);
-                });
-
-                // Get initial status
+                // Fetch initial data and update UI
                 String initialStatus = boundedService.getAppointmentStatus();
-                int minutesLeft = boundedService.getMinutesUntilAppointment();
-                boolean hasAppointment = boundedService.hasAppointment();
-
-                Log.d("HomeActivity", "Initial Status: " + initialStatus);
-                Log.d("HomeActivity", "Minutes Left: " + minutesLeft);
-                Log.d("HomeActivity", "Has Appointment: " + hasAppointment);
-
-                // Update UI with initial status
                 updateBoundedServiceUI(initialStatus);
             }
 
+            // Called if service is unexpectedly disconnected
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                Log.d("HomeActivity", "❌ onServiceDisconnected() called");
                 isBoundedServiceConnected = false;
                 boundedService = null;
-                Log.d("HomeActivity", "========== SERVICE DISCONNECTED ==========");
+                Log.d("HomeActivity", "❌ SERVICE DISCONNECTED");
             }
         };
 
-        Log.d("HomeActivity", "Attempting to bind to AppointmentBoundedService...");
-
+        // Bind activity to service
         Intent intent = new Intent(this, AppointmentBoundedService.class);
         bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-
         Log.d("HomeActivity", "bindService() called");
     }
+
 
     // ✅ NEW: Update UI with bounded service status
     private void updateBoundedServiceUI(String status) {

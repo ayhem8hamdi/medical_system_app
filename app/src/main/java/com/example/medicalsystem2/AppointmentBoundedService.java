@@ -39,6 +39,9 @@ public class AppointmentBoundedService extends Service {
      */
    // Binder, which is Android’s standard class to provide a
     // communication channel between activity and service.
+
+    // We create a CUSTOM Binder that can return OUR Service
+
     public class LocalBinder extends Binder {
         AppointmentBoundedService getService() {
             return AppointmentBoundedService.this;
@@ -68,13 +71,17 @@ public class AppointmentBoundedService extends Service {
 
      // Called when an activity binds to this service.
      //Returns the Binder object which allows the activity to communicate with the service.
-
+// **** activity binds to this service means
+// connects to a service so it can directly communicate with it and call its methods.
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "========== ACTIVITY BINDING ==========");
         return binder; // Provide the bridge object to the client
     }
 
+   //onUnbind() is called when the last Activity (client) disconnects from the bound service.
+    // when it triggered ?
+    //unbindService(serviceConnection); or Activity finishes or app closed
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "========== ACTIVITY UNBINDING ==========");
@@ -97,7 +104,6 @@ public class AppointmentBoundedService extends Service {
      * Activities can call this directly because they are bound to the service.
      */
     public String getAppointmentStatus() {
-        Log.d(TAG, ">>> Method Called: getAppointmentStatus()");
 
         // Step 1: Read appointment date-time from SharedPreferences
         SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
@@ -106,7 +112,6 @@ public class AppointmentBoundedService extends Service {
         // Step 2: Check if an appointment exists
         if (appointmentDateTime.isEmpty()) {
             appointmentStatus = "No Appointment Scheduled";
-            Log.d(TAG, "Result: " + appointmentStatus);
             return appointmentStatus;
         }
 
@@ -138,10 +143,8 @@ public class AppointmentBoundedService extends Service {
 
         } catch (Exception e) {
             appointmentStatus = "Error checking appointment";
-            Log.e(TAG, "Error: " + e.getMessage());
         }
 
-        Log.d(TAG, "Result: " + appointmentStatus);
 
         // Step 8: Notify any listener/UI component about status change
         if (statusListener != null) {
@@ -156,7 +159,6 @@ public class AppointmentBoundedService extends Service {
      * Returns -1 if no appointment exists
      */
     public int getMinutesUntilAppointment() {
-        Log.d(TAG, ">>> Method Called: getMinutesUntilAppointment()");
 
         SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
         String appointmentDateTime = prefs.getString("appointment_datetime", "");
@@ -188,15 +190,13 @@ public class AppointmentBoundedService extends Service {
      * Get doctor name associated with appointment
      */
     public String getDoctorName() {
-        Log.d(TAG, ">>> Method Called: getDoctorName()");
-        return "Dr. Ahmed Hassan"; // Hardcoded for now, can be dynamic
+        return "Dr. Ahmed Hassan"; // Hardcoded for now, can be dynamic from data base
     }
 
     /**
      * Check if there is any appointment scheduled
      */
     public boolean hasAppointment() {
-        Log.d(TAG, ">>> Method Called: hasAppointment()");
 
         SharedPreferences prefs = getSharedPreferences("AppointmentPrefs", MODE_PRIVATE);
         String appointmentDateTime = prefs.getString("appointment_datetime", "");
