@@ -28,6 +28,11 @@
             android:enabled="true"
             android:exported="false" />
 
+        <service
+            android:name=".AppointmentBoundedService"
+            android:enabled="true"
+            android:exported="false" />
+
         <activity
             android:name=".appointment"
             android:exported="false" />

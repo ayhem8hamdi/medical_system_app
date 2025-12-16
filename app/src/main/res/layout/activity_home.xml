@@ -87,13 +87,64 @@
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
+            <!-- ✅ NEW: BOUNDED SERVICE STATUS CARD -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/boundedServiceCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/dashboardMessage"
+                android:layout_marginTop="12dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:visibility="visible"
+                app:cardBackgroundColor="#E3F2FD"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <!-- Title -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📊 Appointment Status (Bounded Service)"
+                        android:textColor="#1976D2"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Status Text -->
+                    <TextView
+                        android:id="@+id/boundedServiceStatusText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No Appointment Scheduled"
+                        android:textColor="#1565C0"
+                        android:textSize="14sp"
+                        android:layout_marginBottom="6dp" />
+
+                    <!-- Minutes Left Text -->
+                    <TextView
+                        android:id="@+id/minutesUntilAppointmentText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏱️ 0 minutes left"
+                        android:textColor="#0D47A1"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Appointment Reminder Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/reminderCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/dashboardMessage"
-                android:layout_marginTop="16dp"
+                android:layout_below="@id/boundedServiceCard"
+                android:layout_marginTop="12dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 android:visibility="gone"
